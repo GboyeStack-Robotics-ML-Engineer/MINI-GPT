@@ -40,10 +40,12 @@ class MULTIHEADSELFATTN(torch.nn.Module):
         if padding_mask is not None:
             
             pass
+
+        attention_scores=attention_scores.to(attention_mask.device)
         
         attention_scores=attention_scores+attention_mask  
         
-        layer_output=attention_scores@V
+        layer_output=attention_scores@V.to(attention_scores.device)
                 
         layer_output=layer_output.view(self.BSZ,self.SEQ_LEN,self.EMBED_DIM)
         

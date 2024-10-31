@@ -91,7 +91,7 @@ def TrainGpt(config):
         # Training
         model.train()
         for batch in tqdm(train_dataloader,dynamic_ncols=False,desc=f'Epoch {epoch}/{EPOCHS}',bar_format='{desc}|{bar}|{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]',leave=False,colour='green'):
-            batch_data={'input_ids':batch['input'],'label_ids':batch['label']}
+            batch_data={'input_ids':batch['input'].to(accelerator.device),'attention_mask':batch['attention_mask'].to(accelerator.device),'label_ids':batch['label'].to(accelerator.device)}
             # print(batch_data['input_ids'].shape)
             # print(batch_data['label_ids'].shape)
             outputs = model(**batch_data)
@@ -118,8 +118,8 @@ if __name__=="__main__":
         'lr':0.0001,
         'EPOCHS':2,
         'SEED':0,
-        'TRAIN_PATH':'D:\PYTHON PROJECTS\TRANSFORMERS\DATA\Train.csv',
-        'VALID_PATH':'D:\PYTHON PROJECTS\TRANSFORMERS\DATA\Test.csv',
+        'TRAIN_PATH':'/content/MINI-GPT/DATA/Train.csv',
+        'VALID_PATH':'/content/MINI-GPT/DATA/Test.csv',
         'TOKENIZER':tokenizer,
         'BATCH_SIZE':16
             }
@@ -131,8 +131,8 @@ if __name__=="__main__":
     trainer = TorchTrainer(
                             TrainGpt,
                             train_loop_config=config,
-                            scaling_config=ScalingConfig(num_workers=4, 
-                                                         use_gpu=False,
+                            scaling_config=ScalingConfig(num_workers=1, 
+                                                         use_gpu=True,
                                                          #trainer_resources=resources,
                                                          #resources_per_worker={'CPU':}
                                                         ),

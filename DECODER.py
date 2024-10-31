@@ -60,13 +60,13 @@ class DECODERLAYER(torch.nn.Module):
         K=self.k_MASKED_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
         V=self.v_MASKED_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
         
-        contextualized_embeddings=self.MHA_MASK(Q,K,V,return_attention=False)
+        contextualized_embeddings=self.MHA_MASK(Q,K,V,return_attention=False).to(x.device)
 
         masked_attention_layer_output=self.norm1(contextualized_embeddings+x)
         
         Q_to_decoder=self.q_AFTER_MASKED_proj(masked_attention_layer_output).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
 
-        contextualized_embeddings=self.MHA_MASK(Q_to_decoder,k_from_encoder,v_from_encoder,return_attention=False)
+        contextualized_embeddings=self.MHA_MASK(Q_to_decoder,k_from_encoder,v_from_encoder,return_attention=False).to(masked_attention_layer_output.device)
 
         attention_layer_output=self.norm2(contextualized_embeddings+masked_attention_layer_output)
         

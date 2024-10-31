@@ -53,11 +53,11 @@ class ENCODERLAYER(torch.nn.Module):
         K=self.k_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
         V=self.v_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
         
-        contextualized_embeddings=self.MHA(Q,K,V,return_attention=False)
+        contextualized_embeddings=self.MHA(Q,K,V,return_attention=False).to(x.device)
 
         attention_layer_output=self.norm1(contextualized_embeddings+x)
         
-        mlp_layer_output=self.mlp_point_wise_attn(attention_layer_output)
+        mlp_layer_output=self.mlp_point_wise_attn(attention_layer_output).to(attention_layer_output.device)
         
         resulting_layer_output=self.norm2(attention_layer_output+mlp_layer_output)
         
