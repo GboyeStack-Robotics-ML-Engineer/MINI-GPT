@@ -18,6 +18,8 @@ from ray import train, tune
 from ray.tune.schedulers import ASHAScheduler
 from ray.train import Checkpoint, DataConfig, ScalingConfig
 from ray.train.torch import TorchTrainer
+from ray.experimental.tqdm_ray import tqdm
+
 
 #import evaluate
 import torch
@@ -39,6 +41,8 @@ warnings.filterwarnings(action='ignore')
 import logging  
 logging.getLogger().setLevel(logging.ERROR)  # Suppresses INFO and DEBUG messages
 import gc
+
+
 
 def TrainGpt(config):
     
@@ -93,7 +97,8 @@ def TrainGpt(config):
     for epoch in range(EPOCHS):
         # Training
         model.train()
-        for batch in tqdm(train_dataloader,dynamic_ncols=False,desc=f'Epoch {epoch}/{EPOCHS}',bar_format='{desc}|{bar}|{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]',leave=False,colour='green'):
+        # Use custom progress bar
+        for batch in tqdm(train_dataloader,desc=f'Epoch {epoch}/{EPOCHS}'):
             batch_data={'input_ids':batch['input'].to(accelerator.device),'attention_mask':batch['attention_mask'].to(accelerator.device),'label_ids':batch['label'].to(accelerator.device)}
             # print(batch_data['input_ids'].shape)
             # print(batch_data['label_ids'].shape)
@@ -106,7 +111,7 @@ def TrainGpt(config):
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
-        
+            
         
         
 if __name__=="__main__":
