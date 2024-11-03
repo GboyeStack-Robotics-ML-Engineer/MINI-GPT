@@ -1,9 +1,11 @@
+
+
 import numpy as np
 import os
 import tempfile
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+#import torch.nn.functional as F
 import torch.optim as optim
 # from filelock import FileLock
 from torch.utils.data import random_split
@@ -118,23 +120,23 @@ if __name__=="__main__":
         'lr':0.0001,
         'EPOCHS':2,
         'SEED':0,
-        'TRAIN_PATH':'/content/MINI-GPT/DATA/Train.csv',
-        'VALID_PATH':'/content/MINI-GPT/DATA/Test.csv',
+        'TRAIN_PATH':'~/MINI-GPT/DATA/Train.csv',
+        'VALID_PATH':'~/MINI-GPT/DATA/Test.csv',
         'TOKENIZER':tokenizer,
         'BATCH_SIZE':16
             }
     # df=pd.read_csv(config['TRAIN_PATH'])
     # print(df.head(3))
     # sys.exit()
-    resources={"CPU": 7}
+    resources={"CPU":3}
     ray.init()
     trainer = TorchTrainer(
                             TrainGpt,
                             train_loop_config=config,
-                            scaling_config=ScalingConfig(num_workers=1, 
-                                                         use_gpu=True,
-                                                         #trainer_resources=resources,
-                                                         #resources_per_worker={'CPU':}
+                            scaling_config=ScalingConfig(num_workers=2, 
+                                                         use_gpu=True if torch.cuda.is_available() else False,
+                                                         trainer_resources=resources,
+                                                         resources_per_worker={'CPU':1}
                                                         ),
                             # run_config=ray.train.RunConfig(failure_config=train.FailureConfig(-1))
                         )

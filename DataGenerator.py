@@ -42,9 +42,8 @@ class Generator(Dataset):
             self.max_length=default_padding_length
 
 
-        dataset_columns=self.dataset.columns.tolist()[1:]
-        message,id_= self.dataset[dataset_columns[0]].values.tolist()[idx],self.dataset[dataset_columns[1]].values.tolist()[idx]
-        
+        dataset_columns=self.dataset.columns.tolist()
+        message = self.dataset[dataset_columns[0]].values.tolist()[idx]        
         # class_id=torch.zeros(2)
         
         # class_id=class_id.index_fill(dim=-1,index=torch.tensor(id_,dtype=torch.int64),value=torch.tensor(1))
