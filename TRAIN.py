@@ -38,6 +38,7 @@ warnings.filterwarnings(action='ignore')
 
 import logging  
 logging.getLogger().setLevel(logging.ERROR)  # Suppresses INFO and DEBUG messages
+import gc
 
 def TrainGpt(config):
     
@@ -101,6 +102,12 @@ def TrainGpt(config):
             accelerator.backward(loss)
             optimizer.step()
             optimizer.zero_grad()
+        del batch,batch_data,outputs
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        gc.collect()
+        
+        
         
 if __name__=="__main__":
     
