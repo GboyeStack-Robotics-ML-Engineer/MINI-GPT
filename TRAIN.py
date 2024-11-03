@@ -103,6 +103,7 @@ def TrainGpt(config):
             optimizer.zero_grad()
         
 if __name__=="__main__":
+    
     MODEL_NAME='t5-base'
     model=T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
     tokenizer=T5Tokenizer.from_pretrained(MODEL_NAME)
@@ -120,23 +121,35 @@ if __name__=="__main__":
         'lr':0.0001,
         'EPOCHS':2,
         'SEED':0,
-        'TRAIN_PATH':'~/MINI-GPT/DATA/Train.csv',
-        'VALID_PATH':'~/MINI-GPT/DATA/Test.csv',
+        'TRAIN_PATH':os.path.join(os.getcwd(),'DATA/Train.csv'),
+        'VALID_PATH':os.path.join(os.getcwd(),'DATA/Train.csv'),
         'TOKENIZER':tokenizer,
         'BATCH_SIZE':16
             }
     # df=pd.read_csv(config['TRAIN_PATH'])
     # print(df.head(3))
     # sys.exit()
-    resources={"CPU":3}
+ 
+    use_gpu=False
+    trainer_resources={"CPU":torch.get_num_threads()-1}
+    resources_per_worker={'CPU':1}
+    cuda_availability=False#torch.cuda.is_available()
+    if cuda_availability:
+        num_workers=torch.cuda.device_count()
+        use_gpu=True
+        trainer_resources={'GPU':num_workers-1}
+        resources_per_worker={'GPU':1}
+        
+        
+
     ray.init()
     trainer = TorchTrainer(
                             TrainGpt,
                             train_loop_config=config,
                             scaling_config=ScalingConfig(num_workers=2, 
-                                                         use_gpu=True if torch.cuda.is_available() else False,
-                                                         trainer_resources=resources,
-                                                         resources_per_worker={'CPU':1}
+                                                         use_gpu=use_gpu,
+                                                         trainer_resources=trainer_resources,
+                                                         resources_per_worker=resources_per_worker
                                                         ),
                             # run_config=ray.train.RunConfig(failure_config=train.FailureConfig(-1))
                         )
