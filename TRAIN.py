@@ -149,11 +149,11 @@ def TrainGpt(config):
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--use_gpu",type=bool)
-    parser.add_argument('--resources_per_worker',action=ParseDict)
+    parser.add_argument('--resources_per_worker',action=ParseDict,metavar="KEY=VALUE",nargs="+")
     # print('hello')
     parser.add_argument('--trainer_resources',action=ParseDict,metavar="KEY=VALUE",nargs="+")
     
-    parser.add_argument('--num_workers',type=int,metavar="KEY=VALUE",nargs="+")
+    parser.add_argument('--num_workers',type=int,nargs="+")
     args = parser.parse_args()
     
     use_gpu=args.use_gpu
