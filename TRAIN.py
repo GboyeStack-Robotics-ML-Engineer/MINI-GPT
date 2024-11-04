@@ -141,7 +141,7 @@ def TrainGpt(config):
             predictions = outputs.argmax(dim=-1)
 
             predictions, references = accelerator.gather_for_metrics(
-                (predictions, batch_data["labels"])
+                (predictions, batch_data["label_ids"])
             )
             
         
