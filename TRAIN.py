@@ -42,6 +42,7 @@ import logging
 logging.getLogger().setLevel(logging.ERROR)  # Suppresses INFO and DEBUG messages
 import gc
 
+import evaluate
 
 
 def TrainGpt(config):
@@ -90,7 +91,7 @@ def TrainGpt(config):
                 DECODER_MLP_ratio,
                 VOCAB_SIZE
                 )
-    
+    metric = evaluate.load("glue", "mrpc")
     optimizer = AdamW(params=model.parameters(), lr=lr)
     model, optimizer = accelerator.prepare(model, optimizer)
     
@@ -98,7 +99,7 @@ def TrainGpt(config):
         # Training
         model.train()
         # Use custom progress bar
-        for batch in tqdm(train_dataloader,desc=f'Epoch {epoch}/{EPOCHS}'):
+        for batch in tqdm(train_dataloader,desc=f'Training| Epoch {epoch}/{EPOCHS}'):
             batch_data={'input_ids':batch['input'].to(accelerator.device),'attention_mask':batch['attention_mask'].to(accelerator.device),'label_ids':batch['label'].to(accelerator.device)}
             # print(batch_data['input_ids'].shape)
             # print(batch_data['label_ids'].shape)
@@ -111,6 +112,17 @@ def TrainGpt(config):
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
+        
+        model.eval()
+        for batch in tqdm(valid_dataloader,desc=f'Validating| Epoch {epoch}/{EPOCHS}'):
+            batch_data={'input_ids':batch['input'].to(accelerator.device),'attention_mask':batch['attention_mask'].to(accelerator.device),'label_ids':batch['label'].to(accelerator.device)}
+            with torch.no_grad():
+                outputs = model(**batch_data,return_loss=False)
+            predictions = outputs.argmax(dim=-1)
+
+            predictions, references = accelerator.gather_for_metrics(
+                (predictions, batch_data["labels"])
+            )
             
         
         
@@ -145,7 +157,7 @@ if __name__=="__main__":
     use_gpu=False
     trainer_resources={"CPU":torch.get_num_threads()-1}
     resources_per_worker={'CPU':1}
-    cuda_availability=False#torch.cuda.is_available()
+    cuda_availability=torch.cuda.is_available()
     if cuda_availability:
         num_workers=torch.cuda.device_count()
         use_gpu=True
