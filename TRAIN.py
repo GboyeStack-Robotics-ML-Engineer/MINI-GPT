@@ -43,7 +43,27 @@ logging.getLogger().setLevel(logging.ERROR)  # Suppresses INFO and DEBUG message
 import gc
 
 import evaluate
+import argparse
 
+class ParseDict(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+
+        d = getattr(namespace, self.dest) or {}
+
+        if values:
+            if type(values) is not list:
+                values=[values]
+            for item in values:
+                split_items = item.split("=")
+                key = split_items[
+                    0
+                ].strip()  # we remove blanks around keys, as is logical
+                # print(split_items)
+                value = split_items[1]
+
+                d[key] = value
+
+        setattr(namespace, self.dest, d)
 
 def TrainGpt(config):
     
@@ -127,6 +147,27 @@ def TrainGpt(config):
         
         
 if __name__=="__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--use_gpu",type=bool)
+    parser.add_argument('--resources_per_worker',action=ParseDict)
+    # print('hello')
+    parser.add_argument('--trainer_resources',action=ParseDict,metavar="KEY=VALUE",nargs="+")
+    
+    parser.add_argument('--num_workers',type=int,metavar="KEY=VALUE",nargs="+")
+    args = parser.parse_args()
+    
+    use_gpu=args.use_gpu
+    resources_per_worker=args.resources_per_worker
+    resources_per_worker={k:int(v) for k,v in zip(list(resources_per_worker.keys()),list(resources_per_worker.values()))}
+    
+    trainer_resources=args.trainer_resources
+    trainer_resources={k:int(v) for k,v in zip(list(trainer_resources.keys()),list(trainer_resources.values()))}
+    # print(type(args.num_workers[0]))
+    num_workers=args.num_workers[0]
+    
+    
+    
+    
     
     MODEL_NAME='t5-base'
     model=T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
@@ -154,15 +195,15 @@ if __name__=="__main__":
     # print(df.head(3))
     # sys.exit()
  
-    use_gpu=False
-    trainer_resources={"CPU":torch.get_num_threads()-1}
-    resources_per_worker={'CPU':1}
-    cuda_availability=torch.cuda.is_available()
-    if cuda_availability:
-        num_workers=torch.cuda.device_count()
-        use_gpu=True
-        trainer_resources={'GPU':num_workers-1}
-        resources_per_worker={'GPU':1}
+    # use_gpu=False
+    # trainer_resources={"CPU":torch.get_num_threads()-1}
+    # resources_per_worker={'CPU':1}
+    # cuda_availability=torch.cuda.is_available()
+    # if cuda_availability:
+    #     num_workers=torch.cuda.device_count()
+    #     use_gpu=True
+    #     trainer_resources={'GPU':num_workers-1}
+    #     resources_per_worker={'GPU':1}
         
         
 
@@ -170,7 +211,7 @@ if __name__=="__main__":
     trainer = TorchTrainer(
                             TrainGpt,
                             train_loop_config=config,
-                            scaling_config=ScalingConfig(num_workers=2, 
+                            scaling_config=ScalingConfig(num_workers=num_workers, 
                                                          use_gpu=use_gpu,
                                                          trainer_resources=trainer_resources,
                                                          resources_per_worker=resources_per_worker
