@@ -12,7 +12,13 @@ class ENCODERLAYER(torch.nn.Module):
         self.k_proj=torch.nn.Linear(EMBED_DIM,EMBED_DIM)
         self.v_proj=torch.nn.Linear(EMBED_DIM,EMBED_DIM)
         self.NUM_HEAD=NUM_HEAD
-        self.MHA=MULTIHEADSELFATTN(NUM_HEAD=NUM_HEAD,use_casual=use_casual,attention_type=None)
+        self.MHA=MULTIHEADSELFATTN(NUM_HEAD=NUM_HEAD,
+                                   use_casual=use_casual,
+                                   attention_type=None,
+                                   EMBED_DIM=EMBED_DIM
+                                   
+                                   )
+        
         self.MLP_ratio=MLP_ratio
         self.EMBED_DIM=EMBED_DIM
         
@@ -26,34 +32,34 @@ class ENCODERLAYER(torch.nn.Module):
         
         self.norm2=torch.nn.LayerNorm(self.EMBED_DIM)
         
-    def positional_encoding(self,tokens):
-        encodings=torch.ones_like(tokens[0,:,:,])
-        for i in range(encodings.size()[0]):
-            for j in range(encodings.size()[1]):
-                encodings[i,j]=np.sin(i / (10000 ** (j / self.EMBED_DIM))) if j % 2 == 0 else np.cos(i / (10000 ** ((j - 1) / self.EMBED_DIM)))
+    # def positional_encoding(self,tokens):
+    #     encodings=torch.ones_like(tokens[0,:,:,])
+    #     for i in range(encodings.size()[0]):
+    #         for j in range(encodings.size()[1]):
+    #             encodings[i,j]=np.sin(i / (10000 ** (j / self.EMBED_DIM))) if j % 2 == 0 else np.cos(i / (10000 ** ((j - 1) / self.EMBED_DIM)))
     
-        return encodings
+    #     return encodings
        
-    def forward(self,inputs):
+    def forward(self,inputs,src_mask):
         
-        positional_encodings=self.positional_encoding(inputs).repeat(inputs.shape[0],1,1) #Function to generate positional encodings will be implemeted later
+        # positional_encodings=self.positional_encoding(inputs).repeat(inputs.shape[0],1,1) #Function to generate positional encodings will be implemeted later
         
-        x=inputs+positional_encodings
+        x=inputs#+positional_encodings
 
         assert 2<=x.dim()<=3,f'Expected the input to be 3D or 2D tensors, but got {x.dim()}D'
         
         if x.dim()==2:
+            
             x=x.unsqueeze(0)
             
-        self.BSZ,self.SEQ_LEN,self.EMBED_DIM=x.shape
-        
+        # print(x.size())
         assert self.EMBED_DIM==x.shape[-1], f'MULTIHEADSELFATTN.forward() method expected the EMBED_DIM:{self.EMBED_DIM}  to match the input dimension. Got Input dim:{x.shape[-1]}, EMBED_DIM:{self.EMBED_DIM}'
         
-        Q=self.q_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
-        K=self.k_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
-        V=self.v_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
+        # Q=self.q_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
+        # K=self.k_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
+        # V=self.v_proj(x).reshape(self.BSZ,self.SEQ_LEN,self.NUM_HEAD,self.EMBED_DIM//self.NUM_HEAD)
         
-        contextualized_embeddings=self.MHA(Q,K,V,return_attention=False).to(x.device)
+        contextualized_embeddings=self.MHA(Q=x,K=x,V=x,mask=src_mask,return_attention=False).to(x.device)
 
         attention_layer_output=self.norm1(contextualized_embeddings+x)
         

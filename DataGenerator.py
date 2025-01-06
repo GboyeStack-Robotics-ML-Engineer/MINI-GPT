@@ -14,6 +14,7 @@ class Generator(Dataset):
         self.max_length=max_length
 
         self.padding_style=padding_style
+        
 
 
     def __len__(self):
