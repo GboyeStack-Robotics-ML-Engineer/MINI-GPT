@@ -201,7 +201,7 @@ if __name__=="__main__":
         'TRAIN_PATH':os.path.join(os.getcwd(),'DATA/Train.csv'),
         'VALID_PATH':os.path.join(os.getcwd(),'DATA/Train.csv'),
         'TOKENIZER':tokenizer,
-        'BATCH_SIZE':16
+        'BATCH_SIZE':4
             }
     # df=pd.read_csv(config['TRAIN_PATH'])
     # print(df.head(3))
