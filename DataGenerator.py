@@ -55,6 +55,7 @@ class Generator(Dataset):
         #   sys.exit()
         
         sample={'input':input_text_tokens['input_ids'][:,1:],
-                'attention_mask':input_text_tokens['attention_mask'][:,1:],
-                'label':input_text_tokens['input_ids'][:,:-1]}
+                'input_attention_mask':input_text_tokens['attention_mask'][:,1:],
+                'label':input_text_tokens['input_ids'][:,:-1],
+                'label_attention_mask':input_text_tokens['attention_mask'][:,:-1]}
         return sample
