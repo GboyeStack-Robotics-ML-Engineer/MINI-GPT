@@ -67,7 +67,9 @@ class MODEL(torch.nn.Module):
     
     def create_padding_mask(self,seq):
         # print(seq)
+        seq=seq.squeeze(1)
         BSZ,SEQ_LEN=seq.shape
+        
         
         padding_mask=torch.eq(seq,0)
         
