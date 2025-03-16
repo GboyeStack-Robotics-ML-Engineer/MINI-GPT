@@ -1,3 +1,5 @@
+
+
 import numpy as np
 import os
 import tempfile
@@ -42,7 +44,6 @@ import gc
 
 import evaluate
 import argparse
-from torch.nn.parallel import DistributedDataParallel as DDP
 
 class ParseDict(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -97,7 +98,7 @@ def TrainGpt(config):
     valid_data=Generator(dataset=valid_df,tokenizer=TOKENIZER,padding_style=None)
     valid_dataloader=DataLoader(valid_data,batch_size=BATCH_SIZE,shuffle=False,num_workers=2,persistent_workers=True)
     
-    accelerator = Accelerator(cpu=True)
+    accelerator = Accelerator()
     
     model=MODEL(
                 NUM_ENCODER_LAYER,
@@ -114,12 +115,9 @@ def TrainGpt(config):
     optimizer = AdamW(params=model.parameters(), lr=lr)
     model, optimizer = accelerator.prepare(model, optimizer)
     
-    # Initialize DDP with find_unused_parameters=True
-    ddp_model = DDP(model, find_unused_parameters=True)
-    
     for epoch in range(EPOCHS):
         # Training
-        ddp_model.train()
+        model.train()
         # Use custom progress bar
         for batch in tqdm(train_dataloader,desc=f'Training| Epoch {epoch}/{EPOCHS}'):
             batch_data={'input_ids':batch['input'].to(accelerator.device),
@@ -129,7 +127,7 @@ def TrainGpt(config):
             # print(batch_data['input_padding_mask'].shape)
             # print(batch_data['target_padding_mask'].shape)
             # print(batch_data['label_ids'].shape)
-            outputs = ddp_model(**batch_data)
+            outputs = model(**batch_data)
             loss = outputs['loss']
             print('loss:',loss)
             accelerator.backward(loss)
@@ -140,14 +138,14 @@ def TrainGpt(config):
             torch.cuda.empty_cache()
         gc.collect()
         
-        ddp_model.eval()
+        model.eval()
         for batch in tqdm(valid_dataloader,desc=f'Validating| Epoch {epoch}/{EPOCHS}'):
             batch_data={'input_ids':batch['input'].to(accelerator.device),
                         'input_padding_mask':batch['input_attention_mask'].to(accelerator.device),
                         'target_padding_mask':batch['label_attention_mask'].to(accelerator.device),
                         'label_ids':batch['label'].to(accelerator.device)}
             with torch.no_grad():
-                outputs = ddp_model(**batch_data,return_loss=False)
+                outputs = model(**batch_data,return_loss=False)
             predictions = outputs.argmax(dim=-1)
 
             predictions, references = accelerator.gather_for_metrics(
@@ -231,4 +229,4 @@ if __name__=="__main__":
 
     result = trainer.fit()
 
-
+    
