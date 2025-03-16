@@ -122,7 +122,7 @@ def TrainGpt(config):
         for batch in tqdm(train_dataloader,desc=f'Training| Epoch {epoch}/{EPOCHS}'):
             batch_data={'input_ids':batch['input'].to(accelerator.device),
                         'input_padding_mask':batch['input_attention_mask'].to(accelerator.device),
-                        'target_padding__mask':batch['label_attention_mask'].to(accelerator.device),
+                        'target_padding_mask':batch['label_attention_mask'].to(accelerator.device),
                         'label_ids':batch['label'].to(accelerator.device)}
             # print(batch_data['input_ids'].shape)
             # print(batch_data['label_ids'].shape)
