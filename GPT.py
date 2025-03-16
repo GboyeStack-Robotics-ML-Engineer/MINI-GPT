@@ -77,7 +77,7 @@ class MODEL(torch.nn.Module):
         # pass
     
     def create_future_mask(self,seq):
-        
+        seq=seq.squeeze(1)
         BSZ,SEQ_LEN=seq.shape
         
         mask=torch.triu(torch.ones((1,1,SEQ_LEN,SEQ_LEN)),diagonal=1)==0
