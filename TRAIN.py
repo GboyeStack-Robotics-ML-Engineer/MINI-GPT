@@ -25,6 +25,8 @@ from ray.experimental.tqdm_ray import tqdm
 import torch
 from torch.optim import AdamW
 from accelerate import Accelerator
+from accelerate import DistributedDataParallelKwargs
+
 import pandas as pd
 
 import DataGenerator
@@ -66,8 +68,7 @@ class ParseDict(argparse.Action):
         setattr(namespace, self.dest, d)
 
 def TrainGpt(config):
-    from accelerate import DistributedDataParallelKwargs
-    accelerator = Accelerator(kwargs_handlers=DistributedDataParallelKwargs(find_unused_parameters=True))
+    
     
     """Your training function that launches on each worker."""
     
@@ -100,8 +101,7 @@ def TrainGpt(config):
     valid_data=Generator(dataset=valid_df,tokenizer=TOKENIZER,padding_style=None)
     valid_dataloader=DataLoader(valid_data,batch_size=BATCH_SIZE,shuffle=False,num_workers=2,persistent_workers=True)
     
-    accelerator = Accelerator()
-    
+    accelerator = Accelerator(kwargs_handlers=[DistributedDataParallelKwargs(find_unused_parameters=True)])
     model=MODEL(
                 NUM_ENCODER_LAYER,
                 NUM_DECODER_LAYER,
@@ -137,6 +137,7 @@ def TrainGpt(config):
             optimizer.step()
             optimizer.zero_grad()
         del batch,batch_data,outputs
+        
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
