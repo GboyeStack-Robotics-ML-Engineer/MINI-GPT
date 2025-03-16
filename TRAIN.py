@@ -127,6 +127,10 @@ def TrainGpt(config):
             # print(batch_data['input_padding_mask'].shape)
             # print(batch_data['target_padding_mask'].shape)
             # print(batch_data['label_ids'].shape)
+            with torch.no_grad():
+                model.requires_grad_(False)  # <- Added line 1
+                # do something with self.net
+                model.requires_grad_(True)  # <- Added line 2
             outputs = model(**batch_data)
             loss = outputs['loss']
             print('loss:',loss)
