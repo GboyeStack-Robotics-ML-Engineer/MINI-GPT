@@ -138,7 +138,10 @@ def TrainGpt(config):
         
         model.eval()
         for batch in tqdm(valid_dataloader,desc=f'Validating| Epoch {epoch}/{EPOCHS}'):
-            batch_data={'input_ids':batch['input'].to(accelerator.device),'attention_mask':batch['attention_mask'].to(accelerator.device),'label_ids':batch['label'].to(accelerator.device)}
+            batch_data={'input_ids':batch['input'].to(accelerator.device),
+                        'input_padding_mask':batch['input_attention_mask'].to(accelerator.device),
+                        'target_padding_mask':batch['label_attention_mask'].to(accelerator.device),
+                        'label_ids':batch['label'].to(accelerator.device)}
             with torch.no_grad():
                 outputs = model(**batch_data,return_loss=False)
             predictions = outputs.argmax(dim=-1)
