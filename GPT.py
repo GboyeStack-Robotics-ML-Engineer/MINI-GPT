@@ -86,11 +86,11 @@ class MODEL(torch.nn.Module):
     
     def create_masks(self,src,tgt,input_padding_mask,target_padding_mask):
         
-        src_padding_mask=self.create_padding_mask(input_padding_mask)
+        src_padding_mask=self.create_padding_mask(input_padding_mask).to(src.device)
         
-        tgt_padding_mask=self.create_padding_mask(target_padding_mask)
+        tgt_padding_mask=self.create_padding_mask(target_padding_mask).to(tgt.device)
         
-        tgt_future_mask=self.create_future_mask(tgt)
+        tgt_future_mask=self.create_future_mask(tgt).to(tgt.device)
         
         # print(src_padding_mask.shape,tgt_padding_mask.shape,tgt_future_mask.shape)
         
