@@ -128,7 +128,7 @@ def TrainGpt(config):
     lr_scheduler = get_linear_schedule_with_warmup(
         optimizer=optimizer,
         num_warmup_steps=100,
-        num_training_steps=(steps_per_epoch * num_epochs),
+        num_training_steps=(steps_per_epoch * EPOCHS),
     )
     model, optimizer = accelerator.prepare(model, optimizer)
     
