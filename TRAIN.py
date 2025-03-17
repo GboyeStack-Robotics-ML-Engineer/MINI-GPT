@@ -20,6 +20,7 @@ from ray.train import Checkpoint, DataConfig, ScalingConfig
 from ray.train.torch import TorchTrainer
 from ray.experimental.tqdm_ray import tqdm
 
+from tempfile import TemporaryDirectory
 
 #import evaluate
 import torch
@@ -147,7 +148,7 @@ def TrainGpt(config):
             
             outputs = model(**batch_data)
             loss = outputs['loss']
-            print('loss:',loss)
+            # print('loss:',loss)
             accelerator.backward(loss)
             optimizer.step()
             lr_scheduler.step()
@@ -172,6 +173,19 @@ def TrainGpt(config):
             predictions, references = accelerator.gather_for_metrics(
                 (predictions, batch_data["label_ids"])
             )
+        
+        eval_metric = metric.compute()
+        accelerator.print(f"epoch {epoch}:", eval_metric) 
+        # Report checkpoint and metrics to Ray Train
+        # ==========================================
+        with TemporaryDirectory() as tmpdir:
+            if accelerator.is_main_process:
+                unwrapped_model = accelerator.unwrap_model(model)
+                accelerator.save(unwrapped_model, f"{tmpdir}/ckpt_{epoch}.bin")
+                checkpoint = Checkpoint.from_directory(tmpdir)
+            else:
+                checkpoint = None
+            ray.train.report(metrics=eval_metric, checkpoint=checkpoint)
             
         
         
