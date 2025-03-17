@@ -35,7 +35,12 @@ from torch.utils.data import Dataset,DataLoader
 
 from GPT import MODEL
 torch.manual_seed(0)
-from transformers import T5ForConditionalGeneration,T5Tokenizer
+from transformers import (
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    get_linear_schedule_with_warmup,
+    set_seed,
+)
 import sys
 import warnings
 warnings.filterwarnings(action='ignore')
@@ -117,6 +122,7 @@ def TrainGpt(config):
     optimizer = AdamW(params=model.parameters(), lr=lr)
     
     steps_per_epoch = len(train_data) // (accelerator.num_processes * BATCH_SIZE)   
+    
     lr_scheduler = get_linear_schedule_with_warmup(
         optimizer=optimizer,
         num_warmup_steps=100,
