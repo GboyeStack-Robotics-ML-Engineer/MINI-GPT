@@ -121,7 +121,7 @@ def TrainGpt(config):
                 DECODER_MLP_ratio,
                 VOCAB_SIZE
                 )
-    metric = evaluate.load("glue", "mrpc")
+    metric = evaluate.load("accuracy")
     optimizer = AdamW(params=model.parameters(), lr=lr)
     
     steps_per_epoch = len(train_data) // (accelerator.num_processes * BATCH_SIZE)   
@@ -184,7 +184,7 @@ def TrainGpt(config):
             
             # del batch,batch_data,outputs
         
-        eval_metric = metric.compute(average='macro')
+        eval_metric = metric.compute()
         accelerator.print(f"epoch {epoch}:", eval_metric) 
         # Report checkpoint and metrics to Ray Train
         # ==========================================
