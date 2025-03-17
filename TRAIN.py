@@ -234,7 +234,7 @@ if __name__=="__main__":
         'DECODER_MLP_ratio': 2,
         'VOCAB_SIZE':len(tokenizer),
         'lr':0.0001,
-        'EPOCHS':20,
+        'EPOCHS':10,
         'SEED':0,
         'TRAIN_PATH':os.path.join(os.getcwd(),'DATA/Train.csv'),
         'VALID_PATH':os.path.join(os.getcwd(),'DATA/Train.csv'),
