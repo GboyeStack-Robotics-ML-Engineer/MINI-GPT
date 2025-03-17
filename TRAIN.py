@@ -173,6 +173,13 @@ def TrainGpt(config):
             predictions, references = accelerator.gather_for_metrics(
                 (predictions, batch_data["label_ids"])
             )
+            
+            metric.add_batch(
+                predictions=predictions,
+                references=references,
+            )
+            
+            # del batch,batch_data,outputs
         
         eval_metric = metric.compute()
         accelerator.print(f"epoch {epoch}:", eval_metric) 
