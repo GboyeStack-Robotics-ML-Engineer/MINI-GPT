@@ -184,7 +184,7 @@ def TrainGpt(config):
             
             # del batch,batch_data,outputs
         
-        eval_metric = metric.compute()
+        eval_metric = metric.compute(average='macro')
         accelerator.print(f"epoch {epoch}:", eval_metric) 
         # Report checkpoint and metrics to Ray Train
         # ==========================================
