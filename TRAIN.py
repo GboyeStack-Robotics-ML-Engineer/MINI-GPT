@@ -130,7 +130,7 @@ def TrainGpt(config):
                                                     num_warmup_steps=100,
                                                     num_training_steps=(steps_per_epoch * EPOCHS),
                                                     )
-    model, optimizer = accelerator.prepare(model, optimizer,lr_scheduler)
+    model, optimizer, lr_scheduler= accelerator.prepare(model, optimizer,lr_scheduler)
     
     for epoch in range(EPOCHS):
         # Training
