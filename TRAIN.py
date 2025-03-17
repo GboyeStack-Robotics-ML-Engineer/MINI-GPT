@@ -174,6 +174,9 @@ def TrainGpt(config):
                 (predictions, batch_data["label_ids"])
             )
             
+            predictions = predictions.view(-1)
+            references = references.view(-1)
+    
             metric.add_batch(
                 predictions=predictions,
                 references=references,
