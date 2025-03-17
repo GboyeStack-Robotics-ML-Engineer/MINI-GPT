@@ -126,11 +126,11 @@ def TrainGpt(config):
     steps_per_epoch = len(train_data) // (accelerator.num_processes * BATCH_SIZE)   
     
     lr_scheduler = get_linear_schedule_with_warmup(
-        optimizer=optimizer,
-        num_warmup_steps=100,
-        num_training_steps=(steps_per_epoch * EPOCHS),
-    )
-    model, optimizer = accelerator.prepare(model, optimizer)
+                                                    optimizer=optimizer,
+                                                    num_warmup_steps=100,
+                                                    num_training_steps=(steps_per_epoch * EPOCHS),
+                                                    )
+    model, optimizer = accelerator.prepare(model, optimizer,lr_scheduler)
     
     for epoch in range(EPOCHS):
         # Training
@@ -150,7 +150,9 @@ def TrainGpt(config):
             print('loss:',loss)
             accelerator.backward(loss)
             optimizer.step()
+            lr_scheduler.step()
             optimizer.zero_grad()
+            
         del batch,batch_data,outputs
         
         if torch.cuda.is_available():
