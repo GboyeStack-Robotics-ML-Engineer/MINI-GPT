@@ -115,6 +115,13 @@ def TrainGpt(config):
                 )
     metric = evaluate.load("glue", "mrpc")
     optimizer = AdamW(params=model.parameters(), lr=lr)
+    
+    steps_per_epoch = len(train_data) // (accelerator.num_processes * BATCH_SIZE)   
+    lr_scheduler = get_linear_schedule_with_warmup(
+        optimizer=optimizer,
+        num_warmup_steps=100,
+        num_training_steps=(steps_per_epoch * num_epochs),
+    )
     model, optimizer = accelerator.prepare(model, optimizer)
     
     for epoch in range(EPOCHS):
