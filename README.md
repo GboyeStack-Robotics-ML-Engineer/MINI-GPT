@@ -3,7 +3,7 @@
 ## Overview
 
 This project is a mini implementation of a GPT (Generative Pre-trained Transformer) model using PyTorch and Ray for distributed training. The codebase includes data preprocessing, model training, and evaluation.
-![image](https://github.com/user-attachments/assets/0b22c136-b132-4628-8781-300fc5da11d2)
+<img src="https://github.com/user-attachments/assets/0b22c136-b132-4628-8781-300fc5da11d2" alt="Transformer Architecture" width="800" height="500">
 
 ## Files
 
