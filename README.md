@@ -75,9 +75,12 @@ The model is defined in the `GPT.py` file and uses the T5 architecture from Hugg
 ## References
 
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762) - The original Transformer paper by Vaswani et al.
-- [An intuitve approach to Transformers ](https://medium.com/towards-data-science/de-coded-transformers-explained-in-plain-english-877814ba6429) - De-coded: Transformers explained in plain English | by Chris Hughes | Towards Data Science
+
+- [An intuitve approach to Transformers ](https://medium.com/towards-data-science/de-coded-transformers-explained-in-plain-english-877814ba6429) - De-coded:Transformers explained in plain English | by Chris Hughes | Towards Data Science
+
 - [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/) - The Illustrated Transformer – Jay Alammar – Visualizing machine learning one concept at a time.
 
+- [Transformers and Multi-Head Attention](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial6/Transformers_and_MHAttention.html) - Tutorial 6: Transformers and Multi-Head Attention — UvA DL Notebooks v1.2 documentation
 
 ## Contributing
 
