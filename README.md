@@ -3,6 +3,7 @@
 ## Overview
 
 This project is a mini implementation of a GPT (Generative Pre-trained Transformer) model using PyTorch and Ray for distributed training. The codebase includes data preprocessing, model training, and evaluation.
+![image](https://github.com/user-attachments/assets/0b22c136-b132-4628-8781-300fc5da11d2)
 
 ## Files
 
@@ -74,8 +75,6 @@ The model is defined in the `GPT.py` file and uses the T5 architecture from Hugg
 ## References
 
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762) - The original Transformer paper by Vaswani et al.
-
-![Transformer Architecture](https://jalammar.github.io/images/t/transformer_architecture.jpg)
 
 ## Contributing
 
