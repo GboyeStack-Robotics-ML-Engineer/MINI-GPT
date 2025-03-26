@@ -71,6 +71,12 @@ The training and test data are stored in CSV files located in the `DATA` directo
 
 The model is defined in the `GPT.py` file and uses the T5 architecture from Hugging Face Transformers.
 
+## References
+
+- [Attention Is All You Need](https://arxiv.org/abs/1706.03762) - The original Transformer paper by Vaswani et al.
+
+![Transformer Architecture](https://jalammar.github.io/images/t/transformer_architecture.jpg)
+
 ## Contributing
 
 Feel free to open issues or submit pull requests if you have any improvements or bug fixes.
